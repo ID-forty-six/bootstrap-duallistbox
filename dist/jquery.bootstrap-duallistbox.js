@@ -1,5 +1,5 @@
 /*
- *  Bootstrap Duallistbox - v3.0.6
+ *  Bootstrap Duallistbox - v3.0.5
  *  A responsive dual listbox widget optimized for Twitter Bootstrap. It works on all modern browsers and on touch devices.
  *  http://www.virtuosoft.eu/code/bootstrap-duallistbox/
  *
@@ -13,6 +13,7 @@
       bootstrap2Compatible: false,
       filterTextClear: 'show all',
       filterPlaceHolder: 'Filter',
+      searchPlaceHolder: 'Search',
       moveSelectedLabel: 'Move selected',
       moveAllLabel: 'Move all',
       removeSelectedLabel: 'Remove selected',
@@ -24,22 +25,38 @@
       helperSelectNamePostfix: '_helper',                                                 // 'string_of_postfix' / false
       selectorMinimalHeight: 100,
       showFilterInputs: true,                                                             // whether to show filter inputs
+      showSearchInputs: false, 
+      searchID: 'search',
       nonSelectedFilter: '',                                                              // string, filter the non selected options
       selectedFilter: '',                                                                 // string, filter the selected options
       infoText: 'Showing all {0}',                                                        // text when all options are visible / false for no info text
       infoTextFiltered: '<span class="label label-warning">Filtered</span> {0} from {1}', // when not all of the options are visible due to the filter
       infoTextEmpty: 'Empty list',                                                        // when there are no options present in the list
-      filterOnValues: false,                                                              // filter by selector's values, boolean
-      sortByInputOrder: false,
-      eventMoveOverride: false,                                                           // boolean, allows user to unbind default event behaviour and run their own instead
-      eventMoveAllOverride: false,                                                        // boolean, allows user to unbind default event behaviour and run their own instead
-      eventRemoveOverride: false,                                                         // boolean, allows user to unbind default event behaviour and run their own instead
-      eventRemoveAllOverride: false                                                       // boolean, allows user to unbind default event behaviour and run their own instead
+      filterOnValues: false                                                               // filter by selector's values, boolean
     },
     // Selections are invisible on android if the containing select is styled with CSS
     // http://code.google.com/p/android/issues/detail?id=16922
     isBuggyAndroid = /android/i.test(navigator.userAgent.toLowerCase());
 
+  function showdisplay(dualListbox) {
+
+    var elements_count  = dualListbox.element.find('option').length;
+
+    if (elements_count == 0) {
+
+      // hide
+       dualListbox.elements.box1.hide();
+       dualListbox.elements.box2.hide();
+
+    } else {
+
+      // show
+       dualListbox.elements.box1.show();
+       dualListbox.elements.box2.show();
+
+    }
+
+  }
   // The actual plugin constructor
   function BootstrapDualListbox(element, options) {
     this.element = $(element);
@@ -74,12 +91,6 @@
       var $item = $(item);
       if ($item.data('original-index') === original_index) {
         $item.prop('selected', selected);
-        if(selected){
-          $item.attr('data-sortindex', dualListbox.sortIndex);
-          dualListbox.sortIndex++;
-        } else {
-          $item.removeAttr('data-sortindex');
-        }
       }
     });
   }
@@ -145,6 +156,7 @@
       filter(dualListbox, 2);
     }
     refreshInfo(dualListbox);
+    showdisplay(dualListbox);
   }
 
   function filter(dualListbox, selectIndex) {
@@ -186,25 +198,6 @@
     });
   }
 
-  function sortOptionsByInputOrder(select){
-    var selectopt = select.children('option');
-
-    selectopt.sort(function(a,b){
-      var an = parseInt(a.getAttribute('data-sortindex')),
-          bn = parseInt(b.getAttribute('data-sortindex'));
-
-          if(an > bn) {
-             return 1;
-          }
-          if(an < bn) {
-            return -1;
-          }
-          return 0;
-    });
-
-    selectopt.detach().appendTo(select);
-  }
-
   function sortOptions(select) {
     select.find('option').sort(function(a, b) {
       return ($(a).data('original-index') > $(b).data('original-index')) ? 1 : -1;
@@ -234,11 +227,7 @@
 
     refreshSelects(dualListbox);
     triggerChangeEvent(dualListbox);
-    if(dualListbox.settings.sortByInputOrder){
-        sortOptionsByInputOrder(dualListbox.elements.select2);
-    } else {
-        sortOptions(dualListbox.elements.select2);
-    }
+    sortOptions(dualListbox.elements.select2);
   }
 
   function remove(dualListbox) {
@@ -259,9 +248,6 @@
     refreshSelects(dualListbox);
     triggerChangeEvent(dualListbox);
     sortOptions(dualListbox.elements.select1);
-    if(dualListbox.settings.sortByInputOrder){
-        sortOptionsByInputOrder(dualListbox.elements.select2);
-    }
   }
 
   function moveAll(dualListbox) {
@@ -276,8 +262,6 @@
       var $item = $(item);
       if (!$item.data('filtered1')) {
         $item.prop('selected', true);
-        $item.attr('data-sortindex', dualListbox.sortIndex);
-        dualListbox.sortIndex++;
       }
     });
 
@@ -297,7 +281,6 @@
       var $item = $(item);
       if (!$item.data('filtered2')) {
         $item.prop('selected', false);
-        $item.removeAttr('data-sortindex');
       }
     });
 
@@ -328,29 +311,21 @@
       dualListbox.setSelectedFilter('', true);
     });
 
-    if (dualListbox.settings.eventMoveOverride === false) {
-      dualListbox.elements.moveButton.on('click', function() {
-        move(dualListbox);
-      });
-    }
+    dualListbox.elements.moveButton.on('click', function() {
+      move(dualListbox);
+    });
 
-    if (dualListbox.settings.eventMoveAllOverride === false) {
-      dualListbox.elements.moveAllButton.on('click', function() {
-        moveAll(dualListbox);
-      });
-    }
+    dualListbox.elements.moveAllButton.on('click', function() {
+      moveAll(dualListbox);
+    });
 
-    if (dualListbox.settings.eventRemoveOverride === false) {
-      dualListbox.elements.removeButton.on('click', function() {
-        remove(dualListbox);
-      });
-    }
+    dualListbox.elements.removeButton.on('click', function() {
+      remove(dualListbox);
+    });
 
-    if (dualListbox.settings.eventRemoveAllOverride === false) {
-      dualListbox.elements.removeAllButton.on('click', function() {
-        removeAll(dualListbox);
-      });
-    }
+    dualListbox.elements.removeAllButton.on('click', function() {
+      removeAll(dualListbox);
+    });
 
     dualListbox.elements.filterInput1.on('change keyup', function() {
       filter(dualListbox, 1);
@@ -366,12 +341,9 @@
       // Add the custom HTML template
       this.container = $('' +
         '<div class="bootstrap-duallistbox-container">' +
+        '<div class="searchdiv"><input id="' + this.settings.searchID +'" class="searchfield" type="text" autocomplete="off"></div>' +
         ' <div class="box1">' +
         '   <label></label>' +
-        '   <span class="info-container">' +
-        '     <span class="info"></span>' +
-        '     <button type="button" class="btn clear1 pull-right"></button>' +
-        '   </span>' +
         '   <input class="filter" type="text">' +
         '   <div class="btn-group buttons">' +
         '     <button type="button" class="btn moveall">' +
@@ -386,10 +358,6 @@
         ' </div>' +
         ' <div class="box2">' +
         '   <label></label>' +
-        '   <span class="info-container">' +
-        '     <span class="info"></span>' +
-        '     <button type="button" class="btn clear2 pull-right"></button>' +
-        '   </span>' +
         '   <input class="filter" type="text">' +
         '   <div class="btn-group buttons">' +
         '     <button type="button" class="btn remove">' +
@@ -408,6 +376,8 @@
       // Cache the inner elements
       this.elements = {
         originalSelect: this.element,
+        searchdiv: $('.searchdiv', this.container),
+        searchfield: $('.searchdiv .searchfield', this.container),
         box1: $('.box1', this.container),
         box2: $('.box2', this.container),
         filterInput1: $('.box1 .filter', this.container),
@@ -438,11 +408,11 @@
 
       // Apply all settings
       this.selectedElements = 0;
-      this.sortIndex = 0;
       this.elementCount = 0;
       this.setBootstrap2Compatible(this.settings.bootstrap2Compatible);
       this.setFilterTextClear(this.settings.filterTextClear);
       this.setFilterPlaceHolder(this.settings.filterPlaceHolder);
+      this.setSearchPlaceHolder(this.settings.searchPlaceHolder);
       this.setMoveSelectedLabel(this.settings.moveSelectedLabel);
       this.setMoveAllLabel(this.settings.moveAllLabel);
       this.setRemoveSelectedLabel(this.settings.removeSelectedLabel);
@@ -457,17 +427,13 @@
       updateSelectionStates(this);
 
       this.setShowFilterInputs(this.settings.showFilterInputs);
+      this.setShowSearchInputs(this.settings.showSearchInputs);
       this.setNonSelectedFilter(this.settings.nonSelectedFilter);
       this.setSelectedFilter(this.settings.selectedFilter);
       this.setInfoText(this.settings.infoText);
       this.setInfoTextFiltered(this.settings.infoTextFiltered);
       this.setInfoTextEmpty(this.settings.infoTextEmpty);
       this.setFilterOnValues(this.settings.filterOnValues);
-      this.setSortByInputOrder(this.settings.sortByInputOrder);
-      this.setEventMoveOverride(this.settings.eventMoveOverride);
-      this.setEventMoveAllOverride(this.settings.eventMoveAllOverride);
-      this.setEventRemoveOverride(this.settings.eventRemoveOverride);
-      this.setEventRemoveAllOverride(this.settings.eventRemoveAllOverride);
 
       // Hide the original select
       this.element.hide();
@@ -490,6 +456,7 @@
       } else {
         this.container.removeClass('row-fluid bs2compatible').addClass('row');
         this.container.find('.box1, .box2').removeClass('span6').addClass('col-md-6');
+        this.container.find('.searchdiv').removeClass('span6').addClass('col-md-12');
         this.container.find('.clear1, .clear2').removeClass('btn-mini').addClass('btn-default btn-xs');
         this.container.find('input, select').addClass('form-control');
         this.container.find('.btn').addClass('btn-default');
@@ -514,6 +481,14 @@
       this.settings.filterPlaceHolder = value;
       this.elements.filterInput1.attr('placeholder', value);
       this.elements.filterInput2.attr('placeholder', value);
+      if (refresh) {
+        refreshSelects(this);
+      }
+      return this.element;
+    },
+    setSearchPlaceHolder: function(value, refresh) {
+      this.settings.searchPlaceHolder = value;
+      this.elements.searchfield.attr('placeholder', value);
       if (refresh) {
         refreshSelects(this);
       }
@@ -654,6 +629,20 @@
       }
       return this.element;
     },
+    setShowSearchInputs: function(value, refresh) {
+      if (!value) {
+        this.elements.searchfield.hide();
+        this.elements.searchfield.hide();
+      } else {
+        this.elements.searchfield.show();
+        this.elements.searchfield.show();
+      }
+      this.settings.showSearchInputs = value;
+      if (refresh) {
+        refreshSelects(this);
+      }
+      return this.element;
+    },
     setNonSelectedFilter: function(value, refresh) {
       if (this.settings.showFilterInputs) {
         this.settings.nonSelectedFilter = value;
@@ -701,41 +690,6 @@
         refreshSelects(this);
       }
       return this.element;
-    },
-    setSortByInputOrder: function(value, refresh){
-        this.settings.sortByInputOrder = value;
-        if (refresh) {
-          refreshSelects(this);
-        }
-        return this.element;
-    },
-    setEventMoveOverride: function(value, refresh) {
-        this.settings.eventMoveOverride = value;
-        if (refresh) {
-          refreshSelects(this);
-        }
-        return this.element;
-    },
-    setEventMoveAllOverride: function(value, refresh) {
-        this.settings.eventMoveAllOverride = value;
-        if (refresh) {
-          refreshSelects(this);
-        }
-        return this.element;
-    },
-    setEventRemoveOverride: function(value, refresh) {
-        this.settings.eventRemoveOverride = value;
-        if (refresh) {
-          refreshSelects(this);
-        }
-        return this.element;
-    },
-    setEventRemoveAllOverride: function(value, refresh) {
-        this.settings.eventRemoveAllOverride = value;
-        if (refresh) {
-          refreshSelects(this);
-        }
-        return this.element;
     },
     getContainer: function() {
       return this.container;
