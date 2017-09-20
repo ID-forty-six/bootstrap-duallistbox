@@ -1,5 +1,5 @@
 /*
- *  Bootstrap Duallistbox - v3.0.5
+ *  Bootstrap Duallistbox - v3.0.6
  *  A responsive dual listbox widget optimized for Twitter Bootstrap. It works on all modern browsers and on touch devices.
  *  http://www.virtuosoft.eu/code/bootstrap-duallistbox/
  *
@@ -42,7 +42,7 @@
 
     var elements_count  = dualListbox.element.find('option').length;
 
-    if (elements_count == 0) {
+    if (elements_count === 0) {
 
       // hide
        dualListbox.elements.box1.hide();

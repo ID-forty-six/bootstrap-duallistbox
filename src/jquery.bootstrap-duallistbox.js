@@ -5,6 +5,7 @@
       bootstrap2Compatible: false,
       filterTextClear: 'show all',
       filterPlaceHolder: 'Filter',
+      searchPlaceHolder: 'Search',
       moveSelectedLabel: 'Move selected',
       moveAllLabel: 'Move all',
       removeSelectedLabel: 'Remove selected',
@@ -16,6 +17,8 @@
       helperSelectNamePostfix: '_helper',                                                 // 'string_of_postfix' / false
       selectorMinimalHeight: 100,
       showFilterInputs: true,                                                             // whether to show filter inputs
+      showSearchInputs: false, 
+      searchID: 'search',
       nonSelectedFilter: '',                                                              // string, filter the non selected options
       selectedFilter: '',                                                                 // string, filter the selected options
       infoText: 'Showing all {0}',                                                        // text when all options are visible / false for no info text
@@ -27,6 +30,25 @@
     // http://code.google.com/p/android/issues/detail?id=16922
     isBuggyAndroid = /android/i.test(navigator.userAgent.toLowerCase());
 
+  function showdisplay(dualListbox) {
+
+    var elements_count  = dualListbox.element.find('option').length;
+
+    if (elements_count === 0) {
+
+      // hide
+       dualListbox.elements.box1.hide();
+       dualListbox.elements.box2.hide();
+
+    } else {
+
+      // show
+       dualListbox.elements.box1.show();
+       dualListbox.elements.box2.show();
+
+    }
+
+  }
   // The actual plugin constructor
   function BootstrapDualListbox(element, options) {
     this.element = $(element);
@@ -126,6 +148,7 @@
       filter(dualListbox, 2);
     }
     refreshInfo(dualListbox);
+    showdisplay(dualListbox);
   }
 
   function filter(dualListbox, selectIndex) {
@@ -310,6 +333,7 @@
       // Add the custom HTML template
       this.container = $('' +
         '<div class="bootstrap-duallistbox-container">' +
+        '<div class="searchdiv"><input id="' + this.settings.searchID +'" class="searchfield" type="text" autocomplete="off"></div>' +
         ' <div class="box1">' +
         '   <label></label>' +
         '   <input class="filter" type="text">' +
@@ -344,6 +368,8 @@
       // Cache the inner elements
       this.elements = {
         originalSelect: this.element,
+        searchdiv: $('.searchdiv', this.container),
+        searchfield: $('.searchdiv .searchfield', this.container),
         box1: $('.box1', this.container),
         box2: $('.box2', this.container),
         filterInput1: $('.box1 .filter', this.container),
@@ -378,6 +404,7 @@
       this.setBootstrap2Compatible(this.settings.bootstrap2Compatible);
       this.setFilterTextClear(this.settings.filterTextClear);
       this.setFilterPlaceHolder(this.settings.filterPlaceHolder);
+      this.setSearchPlaceHolder(this.settings.searchPlaceHolder);
       this.setMoveSelectedLabel(this.settings.moveSelectedLabel);
       this.setMoveAllLabel(this.settings.moveAllLabel);
       this.setRemoveSelectedLabel(this.settings.removeSelectedLabel);
@@ -392,6 +419,7 @@
       updateSelectionStates(this);
 
       this.setShowFilterInputs(this.settings.showFilterInputs);
+      this.setShowSearchInputs(this.settings.showSearchInputs);
       this.setNonSelectedFilter(this.settings.nonSelectedFilter);
       this.setSelectedFilter(this.settings.selectedFilter);
       this.setInfoText(this.settings.infoText);
@@ -420,6 +448,7 @@
       } else {
         this.container.removeClass('row-fluid bs2compatible').addClass('row');
         this.container.find('.box1, .box2').removeClass('span6').addClass('col-md-6');
+        this.container.find('.searchdiv').removeClass('span6').addClass('col-md-12');
         this.container.find('.clear1, .clear2').removeClass('btn-mini').addClass('btn-default btn-xs');
         this.container.find('input, select').addClass('form-control');
         this.container.find('.btn').addClass('btn-default');
@@ -444,6 +473,14 @@
       this.settings.filterPlaceHolder = value;
       this.elements.filterInput1.attr('placeholder', value);
       this.elements.filterInput2.attr('placeholder', value);
+      if (refresh) {
+        refreshSelects(this);
+      }
+      return this.element;
+    },
+    setSearchPlaceHolder: function(value, refresh) {
+      this.settings.searchPlaceHolder = value;
+      this.elements.searchfield.attr('placeholder', value);
       if (refresh) {
         refreshSelects(this);
       }
@@ -579,6 +616,20 @@
         this.elements.filterInput2.show();
       }
       this.settings.showFilterInputs = value;
+      if (refresh) {
+        refreshSelects(this);
+      }
+      return this.element;
+    },
+    setShowSearchInputs: function(value, refresh) {
+      if (!value) {
+        this.elements.searchfield.hide();
+        this.elements.searchfield.hide();
+      } else {
+        this.elements.searchfield.show();
+        this.elements.searchfield.show();
+      }
+      this.settings.showSearchInputs = value;
       if (refresh) {
         refreshSelects(this);
       }
