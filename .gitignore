@@ -2,7 +2,7 @@
 .idea
 .hg
 .hgignore
-nbproject
+nbproject/private
 *.iml
 *.ipr
 *.iws
