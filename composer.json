@@ -1,5 +1,5 @@
 {
-    "name": "id-forty-six/bootstrap-duallistbox",
+    "name": "istvan-ujjmeszaros/bootstrap-duallistbox",
     "type": "library",
     "keywords": ["bootstrap", "bootstrap select", "select", "bootstrap duallistbox", "duallistbox"],
     "description": "A responsive dual listbox widget optimized for Twitter Bootstrap. It works on all modern browsers and on touch devices.",
@@ -9,6 +9,10 @@
         {
             "name": "ID Forty Six",
             "homepage": "https://sendinn.com"
+        },
+		{
+            "name": "István Ujj-Mészáros",
+            "homepage": "https://github.com/istvan-ujjmeszaros"
         }
     ],
     "license": "Apache-2.0",
